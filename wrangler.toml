@@ -1,8 +1,8 @@
 name = "trip-expense-bot"
-account_id = "YOUR_ACCOUNT_ID"
+account_id = "8cc45fdb94bd0ccd3e802620ef758da9"
 main = "worker.js"
 type = "javascript"
 
 kv_namespaces = [
-  { binding = "TRIP_KV", id = "YOUR_KV_NAMESPACE_ID" }
+  { binding = "KV_BINDING", id = "49db79caefc444288f1ba4e0083f400e" }
 ]
