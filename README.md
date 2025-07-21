@@ -1,20 +1,49 @@
-# Telegram Trip Bot 🧾✈️
+# Telegram Trip Bot
 
-Bot & WebApp giúp thống kê chi tiêu nhóm đi chơi và chia tiền hợp lý. Được triển khai bằng Cloudflare Workers + KV và có thể kết hợp với Telegram Bot API.
+Bot quản lý chi tiêu cho chuyến đi, chia tiền công bằng, hỗ trợ WebApp mini, Telegram Bot, Cloudflare Workers, PDF export và mã hóa dữ liệu cá nhân.
 
-## 🔧 Tính năng
+## 📦 Tính năng
 
-- Tạo nhóm chuyến đi và thêm thành viên
-- Ghi nhận các khoản thu/chi
-- Tự động tính toán ai nợ ai
-- REST API có thể dùng với WebApp hoặc Telegram Bot
-- Lưu trữ nhẹ nhàng với Cloudflare KV
+- Tạo nhóm chuyến đi, thêm thành viên
+- Ghi nhận chi tiêu và người hưởng
+- Tính toán chia đều hoặc tính phần chi cá nhân
+- Mã hóa chuyến đi riêng tư
+- Giao diện WebApp mini (PWA)
+- Bot Telegram kết nối WebApp
+- Export thống kê dưới dạng PDF
 
----
+## 🏗 Cấu trúc dự án
 
-## 🛠️ Cài đặt
+```
+trip-expense-bot/
+├── index.html          # Giao diện WebApp
+├── style.css           # CSS giao diện
+├── main.js             # Logic xử lý WebApp
+├── worker.js           # Cloudflare Worker API
+├── wrangler.toml       # Cấu hình Cloudflare
+├── README.md           # Hướng dẫn sử dụng
+```
 
-### 1. Clone dự án
-```bash
-git clone https://github.com/yourname/telegram-trip-bot.git
-cd telegram-trip-bot
+## 🚀 Triển khai trên Cloudflare Workers
+
+1. Cài đặt Wrangler:
+   npm install -g wrangler
+
+2. Cấu hình `wrangler.toml`
+
+3. Đăng nhập & publish:
+   wrangler login
+   wrangler deploy
+
+## 🧠 API Worker
+
+- POST /trip
+- POST /trip/:id/expense
+- GET /trip/:id/expenses
+- GET /trip/:id/stats
+
+## 🤖 Tích hợp Telegram Bot
+## 🔒 Mã hóa chuyến đi riêng tư
+## 🧾 Export PDF
+
+✨ Project by @nttung.dev
