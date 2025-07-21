@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Trip Expense WebApp</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/style.css">
 </head>
 <body class="bg-gray-100 min-h-screen">
   <div class="max-w-xl mx-auto bg-white shadow-lg p-6 mt-10 rounded-xl">
@@ -31,68 +32,6 @@
     </div>
   </div>
 
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const form = document.getElementById("trip-form");
-      const tripList = document.getElementById("trip-list");
-
-      const TRIP_KEY = "trip_data";
-
-      function loadTrips() {
-        const trips = JSON.parse(localStorage.getItem(TRIP_KEY)) || [];
-        tripList.innerHTML = "";
-
-        trips.forEach((trip, index) => {
-          const tripDiv = document.createElement("div");
-          tripDiv.className = "p-4 bg-gray-50 border rounded shadow-sm flex justify-between items-center";
-
-          tripDiv.innerHTML = `
-            <div>
-              <h3 class="text-lg font-semibold text-gray-800">${trip.name}</h3>
-              <p class="text-sm text-gray-600">Thành viên: ${trip.members.join(", ")}</p>
-            </div>
-            <button data-index="${index}" class="delete-trip text-red-500 hover:underline text-sm">Xoá</button>
-          `;
-
-          tripList.appendChild(tripDiv);
-        });
-      }
-
-      tripList.addEventListener("click", function (e) {
-        if (e.target.classList.contains("delete-trip")) {
-          const index = parseInt(e.target.getAttribute("data-index"));
-          const trips = JSON.parse(localStorage.getItem(TRIP_KEY)) || [];
-          trips.splice(index, 1);
-          localStorage.setItem(TRIP_KEY, JSON.stringify(trips));
-          loadTrips();
-        }
-      });
-
-      form.addEventListener("submit", function (e) {
-        e.preventDefault();
-
-        const name = document.getElementById("trip-name").value.trim();
-        const membersInput = document.getElementById("members").value.trim();
-
-        if (!name || !membersInput) {
-          alert("Vui lòng nhập đầy đủ thông tin chuyến đi.");
-          return;
-        }
-
-        const members = membersInput.split(",").map(m => m.trim()).filter(m => m !== "");
-
-        const newTrip = { name, members };
-
-        const trips = JSON.parse(localStorage.getItem(TRIP_KEY)) || [];
-        trips.push(newTrip);
-        localStorage.setItem(TRIP_KEY, JSON.stringify(trips));
-
-        form.reset();
-        loadTrips();
-      });
-
-      loadTrips();
-    });
-  </script>
+  <script src="/main.js"></script>
 </body>
 </html>
