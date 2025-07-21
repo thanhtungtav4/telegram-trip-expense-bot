@@ -11,11 +11,11 @@ export default {
 
     // GET /trips
     if (request.method === "GET" && url.pathname === "/trips") {
-      const list = await env.TRIPS.list();
+      const list = await env.KV_BINDING.list();
       const trips = [];
 
       for (const key of list.keys) {
-        const value = await env.TRIPS.get(key.name, { type: "json" });
+        const value = await env.KV_BINDING.get(key.name, { type: "json" });
         if (value) trips.push(value);
       }
 
@@ -38,7 +38,7 @@ export default {
         created: Date.now(),
       };
 
-      await env.TRIPS.put(`trip:${id}`, JSON.stringify(trip));
+      await env.KV_BINDING.put(`trip:${id}`, JSON.stringify(trip));
 
       return new Response(JSON.stringify({ success: true, id }), {
         headers: {
