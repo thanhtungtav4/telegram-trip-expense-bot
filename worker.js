@@ -63,6 +63,60 @@ export default {
       });
     }
 
+    // POST /trips/:id/expense
+    if (request.method === "POST" && url.pathname.match(/^\/trips\/([^/]+)\/expense$/)) {
+      const tripId = url.pathname.split("/")[2];
+      const data = await request.json();
+      const expenseId = crypto.randomUUID();
+      const expense = {
+        id: expenseId,
+        tripId,
+        description: data.description,
+        amount: data.amount,
+        paidBy: data.paidBy,
+        sharedBy: data.sharedBy,
+        created: Date.now(),
+      };
+      await env.KV_BINDING.put(`expense:${tripId}:${expenseId}`, JSON.stringify(expense));
+      return new Response(JSON.stringify({ success: true, id: expenseId }), {
+        headers: { "Content-Type": "application/json", ...corsHeaders() },
+      });
+    }
+
+    // GET /trips/:id/expenses
+    if (request.method === "GET" && url.pathname.match(/^\/trips\/([^/]+)\/expenses$/)) {
+      const tripId = url.pathname.split("/")[2];
+      const list = await env.KV_BINDING.list({ prefix: `expense:${tripId}:` });
+      const expenses = [];
+      for (const key of list.keys) {
+        const value = await env.KV_BINDING.get(key.name, { type: "json" });
+        if (value) expenses.push(value);
+      }
+      return new Response(JSON.stringify(expenses), {
+        headers: { "Content-Type": "application/json", ...corsHeaders() },
+      });
+    }
+
+    // GET /trips/:id/stats
+    if (request.method === "GET" && url.pathname.match(/^\/trips\/([^/]+)\/stats$/)) {
+      const tripId = url.pathname.split("/")[2];
+      const list = await env.KV_BINDING.list({ prefix: `expense:${tripId}:` });
+      const expenses = [];
+      for (const key of list.keys) {
+        const value = await env.KV_BINDING.get(key.name, { type: "json" });
+        if (value) expenses.push(value);
+      }
+      // Calculate total spent per member
+      const stats = {};
+      for (const exp of expenses) {
+        if (!stats[exp.paidBy]) stats[exp.paidBy] = 0;
+        stats[exp.paidBy] += Number(exp.amount) || 0;
+      }
+      return new Response(JSON.stringify(stats), {
+        headers: { "Content-Type": "application/json", ...corsHeaders() },
+      });
+    }
+
     return new Response("Not found", { status: 404 });
   },
 };
