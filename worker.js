@@ -1,6 +1,21 @@
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
+    if (request.method === "OPTIONS") {
+      return new Response(null, {
+        status: 204,
+        headers: corsHeaders(),
+      });
+    }
+
+    if (request.method === "GET" && url.pathname === "/") {
+      return new Response("Trip Expense Bot is running!", {
+        headers: {
+          "Content-Type": "text/plain",
+          ...corsHeaders(),
+        },
+      });
+    }
 
     if (request.method === "OPTIONS") {
       return new Response(null, {
