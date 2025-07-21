@@ -1,4 +1,4 @@
-name = "trip-expense-bot"
+name = "telegram-trip-expense-bot"
 account_id = "8cc45fdb94bd0ccd3e802620ef758da9"
 main = "worker.js"
 compatibility_date = "2025-07-21"
