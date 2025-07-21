@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Trip Expense Tracker</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Trip Expense Tracker</h1>
+
+    <section>
+      <h2>Create Trip</h2>
+      <input type="text" id="tripId" placeholder="Trip ID" />
+      <input type="text" id="tripName" placeholder="Trip Name" />
+      <input type="text" id="tripMembers" placeholder="Members (comma-separated)" />
+      <button onclick="createTrip()">Create</button>
+    </section>
+
+    <section>
+      <h2>Add Expense</h2>
+      <input type="text" id="expenseTripId" placeholder="Trip ID" />
+      <input type="text" id="payer" placeholder="Payer" />
+      <input type="number" id="amount" placeholder="Amount" />
+      <input type="text" id="beneficiaries" placeholder="Beneficiaries (comma-separated)" />
+      <button onclick="addExpense()">Add</button>
+    </section>
+
+    <section>
+      <h2>View Stats</h2>
+      <input type="text" id="statsTripId" placeholder="Trip ID" />
+      <button onclick="getStats()">Get Stats</button>
+      <pre id="statsOutput"></pre>
+    </section>
+  </div>
+
+  <script>
+    const API = 'https://your-worker-url.workers.dev'; // Change to your actual URL
+
+    async function createTrip() {
+      const id = document.getElementById('tripId').value;
+      const name = document.getElementById('tripName').value;
+      const members = document.getElementById('tripMembers').value.split(',').map(s => s.trim());
+
+      await fetch(`${API}/trip`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, name, members })
+      });
+
+      alert('Trip created!');
+    }
+
+    async function addExpense() {
+      const id = document.getElementById('expenseTripId').value;
+      const payer = document.getElementById('payer').value;
+      const amount = parseFloat(document.getElementById('amount').value);
+      const beneficiaries = document.getElementById('beneficiaries').value.split(',').map(s => s.trim());
+
+      await fetch(`${API}/trip/${id}/expense`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ payer, amount, beneficiaries })
+      });
+
+      alert('Expense added!');
+    }
+
+    async function getStats() {
+      const id = document.getElementById('statsTripId').value;
+      const res = await fetch(`${API}/trip/${id}/stats`);
+      const data = await res.json();
+      document.getElementById('statsOutput').textContent = JSON.stringify(data, null, 2);
+    }
+  </script>
+</body>
+</html>
