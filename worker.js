@@ -2,6 +2,7 @@ export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
 
+    // Handle CORS preflight
     if (request.method === "OPTIONS") {
       return new Response(null, {
         status: 204,
@@ -9,53 +10,82 @@ export default {
       });
     }
 
-    // GET /trips
-    if (request.method === "GET" && url.pathname === "/trips") {
-      const list = await env.TRIPS.list();
-      const trips = [];
-
-      for (const key of list.keys) {
-        const value = await env.TRIPS.get(key.name, { type: "json" });
-        if (value) trips.push(value);
-      }
-
-      return new Response(JSON.stringify(trips), {
+    // GET /
+    if (request.method === "GET" && url.pathname === "/") {
+      return new Response("Trip Expense Bot is running!", {
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "text/plain",
           ...corsHeaders(),
         },
       });
+    }
+
+    // GET /trips
+    if (request.method === "GET" && url.pathname === "/trips") {
+      try {
+        const list = await env.KV_BINDING.list({ prefix: "trip:" });
+        const trips = [];
+
+        for (const key of list.keys) {
+          const trip = await env.KV_BINDING.get(key.name, { type: "json" });
+          if (trip) trips.push(trip);
+        }
+
+        return jsonResponse(trips);
+      } catch (e) {
+        return errorResponse("Failed to fetch trips", 500);
+      }
     }
 
     // POST /trips
     if (request.method === "POST" && url.pathname === "/trips") {
-      const data = await request.json();
-      const id = crypto.randomUUID();
-      const trip = {
-        id,
-        name: data.name,
-        members: data.members,
-        created: Date.now(),
-      };
+      try {
+        const body = await request.json();
+        if (!body.name || !Array.isArray(body.members)) {
+          return errorResponse("Invalid payload", 400);
+        }
 
-      await env.TRIPS.put(`trip:${id}`, JSON.stringify(trip));
+        const id = crypto.randomUUID();
+        const trip = {
+          id,
+          name: body.name,
+          members: body.members,
+          created: Date.now(),
+        };
 
-      return new Response(JSON.stringify({ success: true, id }), {
-        headers: {
-          "Content-Type": "application/json",
-          ...corsHeaders(),
-        },
-      });
+        await env.KV_BINDING.put(`trip:${id}`, JSON.stringify(trip));
+
+        return jsonResponse({ success: true, id });
+      } catch (e) {
+        return errorResponse("Failed to create trip", 500);
+      }
     }
 
-    return new Response("Not found", { status: 404 });
+    return errorResponse("Not found", 404);
   },
 };
 
+// CORS Headers
 function corsHeaders() {
   return {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type",
   };
+}
+
+// JSON response
+function jsonResponse(data, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: {
+      "Content-Type": "application/json",
+      ...corsHeaders(),
+    },
+  });
+}
+
+// Error response
+function errorResponse(message, status = 400) {
+  return jsonResponse({ success: false, error: message }, status);
 }
